@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grandma's Search History</title>
+  <style>
+    :root {
+      --bg: #fff8ef;
+      --panel: #fffdf9;
+      --panel2: #fff2dd;
+      --ink: #3b2a1f;
+      --muted: #7a6557;
+      --accent: #ff8a5b;
+      --accent2: #7cc6a3;
+      --danger: #ff6b81;
+      --line: rgba(59,42,31,.12);
+      --shadow: 0 10px 30px rgba(59,42,31,.08);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #fff0c9, transparent 28%),
+        radial-gradient(circle at top right, #ffd9cc, transparent 25%),
+        linear-gradient(180deg, #fffaf3, var(--bg));
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .top {
+      display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: end;
+      margin-bottom: 18px;
+    }
+    h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.6rem); line-height: .95; letter-spacing: -.03em; }
+    .sub { color: var(--muted); margin-top: 8px; font-size: 1rem; max-width: 70ch; }
+    .stats {
+      display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end;
+    }
+    .pill {
+      background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow);
+      padding: 10px 14px; border-radius: 999px; font-weight: 700; font-size: .92rem;
+    }
+    .grid {
+      display: grid; grid-template-columns: 1.05fr .95fr; gap: 18px;
+    }
+    .card {
+      background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow: hidden; min-height: 300px;
+    }
+    .card-h {
+      padding: 16px 18px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #fff, #fffaf2);
+      display: flex; justify-content: space-between; gap: 12px; align-items: center;
+    }
+    .card-h h2 { margin: 0; font-size: 1.05rem; }
+    .card-h p { margin: 4px 0 0; color: var(--muted); font-size: .9rem; }
+    .searchbar {
+      display: flex; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); background: #fffaf4;
+    }
+    .searchbar input {
+      flex: 1; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line);
+      font: inherit; background: white; color: var(--ink);
+    }
+    .searchbar button, .btn {
+      border: 0; border-radius: 12px; padding: 12px 14px; font: inherit; font-weight: 800; cursor: pointer;
+      background: var(--accent); color: white; box-shadow: 0 6px 0 rgba(59,42,31,.12);
+    }
+    .searchbar button:hover, .btn:hover { transform: translateY(-1px); filter: brightness(1.02); }
+    .searchbar button:active, .btn:active { transform: translateY(1px); box-shadow: 0 3px 0 rgba(59,42,31,.12); }
+    .btn.alt { background: #efe2d1; color: var(--ink); box-shadow: none; border: 1px solid var(--line); }
+    .history { padding: 10px; max-height: 68vh; overflow: auto; }
+    .item {
+      width: 100%; text-align: left; background: white; border: 1px solid var(--line); border-radius: 14px;
+      padding: 12px 14px; margin: 8px 0; cursor: pointer; display: grid; gap: 4px;
+      transition: transform .08s ease, border-color .12s ease, background .12s ease;
+    }
+    .item:hover { transform: translateY(-1px); border-color: rgba(255,138,91,.45); background: #fffdfa; }
+    .item.active { border-color: var(--accent); background: #fff5ee; box-shadow: inset 0 0 0 1px rgba(255,138,91,.25); }
+    .q { font-weight: 800; font-size: .98rem; line-height: 1.3; }
+    .meta { color: var(--muted); font-size: .8rem; display: flex; gap: 10px; flex-wrap: wrap; }
+    .tag { padding: 2px 8px; border-radius: 999px; background: #f4ebe0; font-weight: 700; font-size: .72rem; color: #6a5648; }
+    .tag.new { background: #ffe3d8; color: #a2452b; }
+    .tag.seen { background: #def3e8; color: #2e6b50; }
+    .result { padding: 18px; display: grid; gap: 14px; }
+    .empty { color: var(--muted); padding: 30px 18px; font-size: 1rem; line-height: 1.6; }
+    .browser {
+      border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: white;
+    }
+    .browser-top {
+      background: #f4efe8; padding: 10px 12px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; align-items: center;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #d8c8ba; }
+    .url { flex: 1; background: white; border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; font-size: .82rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .page { padding: 16px; }
+    .search-head { font-size: .8rem; color: #6b7f75; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+    .search-q { font-size: 1.5rem; font-weight: 900; margin: 6px 0 14px; line-height: 1.2; }
+    .result-card { border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin: 10px 0; background: #fffdfa; }
+    .r-url { font-size: .78rem; color: #4f8b67; font-weight: 700; }
+    .r-title { font-size: 1.05rem; font-weight: 800; color: #2f5ea8; margin: 3px 0; }
+    .r-snippet { color: #4e433d; font-size: .93rem; line-height: 1.5; }
+    .grandma-note {
+      background: var(--panel2); border: 1px dashed rgba(255,138,91,.45); padding: 13px 14px; border-radius: 14px;
+      font-size: .94rem; line-height: 1.5;
+    }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .verdict { font-weight: 800; font-size: .9rem; color: var(--muted); min-height: 1.2em; }
+    .footer-note { margin-top: 14px; color: var(--muted); font-size: .85rem; text-align: center; }
+    @media (max-width: 940px) {
+      .grid { grid-template-columns: 1fr; }
+      .history { max-height: 42vh; }
+      .top { grid-template-columns: 1fr; }
+      .stats { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>grandma's search history</h1>
+        <div class="sub">you have been granted temporary access to grandma's computer. click a search to see what popped up. add your own custom searches. decide what is harmless, what is concerning, and what is legendary.</div>
+      </div>
+      <div class="stats">
+        <div class="pill" id="stat-seen">seen: 0</div>
+        <div class="pill" id="stat-chaos">chaos level: 0</div>
+        <div class="pill" id="stat-custom">custom: 0</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <div class="card-h">
+          <div>
+            <h2>Recent Searches</h2>
+            <p>click any entry to inspect the damage</p>
+          </div>
+          <button class="btn alt" id="btn-random">surprise me</button>
+        </div>
+        <div class="searchbar">
+          <input id="custom-input" type="text" placeholder="add a custom grandma search..." maxlength="120" />
+          <button id="btn-add">add search</button>
+        </div>
+        <div class="history" id="history"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-h">
+          <div>
+            <h2>Search Results</h2>
+            <p>what grandma saw after she hit enter</p>
+          </div>
+        </div>
+        <div id="result" class="empty">pick a search from the left. grandma has been busy.</div>
+      </section>
+    </div>
+    <div class="footer-note">tip: custom searches generate grandma-style results automatically. yes, you can make it worse.</div>
+  </div>
+
+  <script>
+    const seed = [
+      {
+        q: "how to turn on computer; thank you computer",
+        when: "2 min ago", chaos: 1,
+        note: "Grandma was being polite to the machine. Respect.",
+        results: [
+          { url: "support.grandmapc.help/power-button", title: "How to Turn On a Computer - Beginner Guide", snippet: "Locate the power button. Press once. Wait patiently. Do not apologize to the monitor, but it is appreciated." },
+          { url: "forums.kindusers.net/thread/8841", title: "Is it normal to thank your computer?", snippet: "Top answer: Yes. 73% of grandmas report better Wi-Fi after saying please and thank you." }
+        ]
+      },
+      {
+        q: "how to make letters big",
+        when: "7 min ago", chaos: 1,
+        note: "The eternal battle begins.",
+        results: [
+          { url: "accessibility.basics/zoom", title: "Make Text Bigger on Any Screen", snippet: "Press Ctrl and + to zoom in. You can also change display scaling in settings." },
+          { url: "askmildred.blog/readable", title: "Big Letters for Tired Eyes", snippet: "If the letters are still small, they are being rude on purpose." }
+        ]
+      },
+      {
+        q: "how to make letters small again",
+        when: "8 min ago", chaos: 1,
+        note: "She flew too close to the sun.",
+        results: [
+          { url: "accessibility.basics/zoom", title: "How to Zoom Back Out", snippet: "Press Ctrl and - to zoom out. Press Ctrl + 0 to reset. Breathe." },
+          { url: "techrescue.local/too-big", title: "My Screen Is Huge Now Help", snippet: "You have not broken the internet. The letters are just yelling." }
+        ]
+      },
+      {
+        q: "how to make letters big again",
+        when: "9 min ago", chaos: 2,
+        note: "The cycle continues. There is no escape.",
+        results: [
+          { url: "accessibility.basics/zoom", title: "Make Text Bigger (Again)", snippet: "Ctrl and + still works. It has always worked. It will always work." },
+          { url: "grandmasupport.group/topic/letter-size", title: "Finding Your Perfect Letter Size", snippet: "Many users oscillate between 'too small' and 'the website is screaming' for 14-22 minutes." }
+        ]
+      },
+      {
+        q: "what is a hashtag",
+        when: "14 min ago", chaos: 1,
+        note: "Innocent question. Dangerous timeline.",
+        results: [
+          { url: "internet101.edu/hashtag", title: "What Is a Hashtag?", snippet: "A hashtag is a word or phrase preceded by # used to categorize posts on social media." },
+          { url: "socialsplainers.com/symbols", title: "The Pound Sign's Wild Second Life", snippet: "Formerly known as the number sign, fence, or tic-tac-toe button." }
+        ]
+      },
+      {
+        q: "is hashtag a crime",
+        when: "15 min ago", chaos: 3,
+        note: "She saw one hashtag too many.",
+        results: [
+          { url: "lawanswers.fake/hashtags", title: "Are Hashtags Illegal?", snippet: "No. Hashtags are not crimes. Using 47 of them in one birthday post is a social offense only." },
+          { url: "localnews.blog/police-blotter", title: "Police Confirm: No Hashtag Arrests This Week", snippet: "Authorities remind citizens that #blessed is annoying, not a felony." }
+        ]
+      },
+      {
+        q: "how to delete hashtag from my face",
+        when: "16 min ago", chaos: 4,
+        note: "Grandma may have discovered face filters.",
+        results: [
+          { url: "phonehelp.today/camera-filters", title: "Remove Stickers and Filters From Camera", snippet: "Open your camera app, tap Effects or Filters, and turn off face stickers." },
+          { url: "beauty.ask/mark-removal", title: "How to Remove a Hashtag From Your Face", snippet: "If it is a real marker: soap and water. If it is digital: tap the sparkle icon." }
+        ]
+      },
+      {
+        q: "how to videocall grandson",
+        when: "22 min ago", chaos: 1,
+        note: "Sweet. Pure. A little dangerous for the front camera.",
+        results: [
+          { url: "familytech.guide/video-call", title: "How to Video Call Your Family", snippet: "Open FaceTime, WhatsApp, or Messenger, find the contact, and tap the video icon." },
+          { url: "grandkid.support/connect", title: "Calling Grandson Without Panic", snippet: "Step 1: Press call. Step 2: Do not hang up immediately because you saw yourself." }
+        ]
+      },
+      {
+        q: "how to see grandson's face and not my chin",
+        when: "23 min ago", chaos: 2,
+        note: "Front camera betrayed her again.",
+        results: [
+          { url: "camera.tips/front-angle", title: "How to Position Your Phone on Video Calls", snippet: "Hold the phone at eye level, about an arm's length away. The camera is not hunting your chin." },
+          { url: "etiquette.online/video", title: "Video Call Framing for Beginners", snippet: "Recommended: face in frame. Not recommended: dramatic chin close-up, ceiling fan documentary." }
+        ]
+      },
+      {
+        q: "how to stop seeing my chin",
+        when: "24 min ago", chaos: 3,
+        note: "At this point it's personal.",
+        results: [
+          { url: "selfcare.mirror/angles", title: "Camera Angles That Feel Kinder", snippet: "Raise the camera slightly above eye level. Soft lighting helps. Your chin is fine." },
+          { url: "forums.grandmavision/threads/77", title: "I Keep Seeing My Chin", snippet: "Best answer: cover the little self-view box with a sticky note. Legendary move." }
+        ]
+      },
+      {
+        q: "is the mailman single",
+        when: "31 min ago", chaos: 3,
+        note: "We are entering new territory.",
+        results: [
+          { url: "local.community/people", title: "Community Directory", snippet: "No public relationship status available for your mail carrier. Please do not ask through the mailbox slot." },
+          { url: "advice.corner/dating", title: "How to Ask If Someone Is Single", snippet: "Try casual conversation. Avoid intercepting certified mail for reconnaissance." }
+        ]
+      },
+      {
+        q: "is the mailman single for my friend",
+        when: "32 min ago", chaos: 4,
+        note: "Classic cover story.",
+        results: [
+          { url: "advice.corner/friend", title: "Asking For a Friend: A Guide", snippet: "If you say 'for my friend' three times, everyone knows it's you." },
+          { url: "mailroutes.info/faq", title: "Mail Carrier FAQ", snippet: "Q: Is my mailman single? A: Please just sign for the package." }
+        ]
+      },
+      {
+        q: "i am the friend",
+        when: "33 min ago", chaos: 5,
+        note: "Honesty. Courage. Chaos.",
+        results: [
+          { url: "confessions.local/honesty", title: "Powerful Things to Admit", snippet: "Admitting you are the friend is the first step toward mailbox-side romance." },
+          { url: "datingafter70.guide/confidence", title: "Confidence Is Attractive at Any Age", snippet: "Directness score: 100/100. Subtlety score: 0/100." }
+        ]
+      },
+      {
+        q: "how to send heart to grandson",
+        when: "40 min ago", chaos: 1,
+        note: "She means a text reaction. Probably.",
+        results: [
+          { url: "messages.help/reactions", title: "How to Send a Heart Reaction", snippet: "In most messaging apps, press and hold the message, then tap the heart." },
+          { url: "cards.digital/love", title: "Send Love Online", snippet: "You can also send a heart emoji, GIF, or an accidental 12-second voice note." }
+        ]
+      },
+      {
+        q: "grandson says everything is bussin. is he sick?",
+        when: "45 min ago", chaos: 2,
+        note: "Medical concern: slang.",
+        results: [
+          { url: "slangmd.health/bussin", title: "What Does 'Bussin' Mean?", snippet: "'Bussin' means really good, especially food. No antibiotics required." },
+          { url: "parentline.answers/teen-speak", title: "Teen Slang Translation Guide", snippet: "If grandson says dinner is bussin, he likes it. If he says 'no cap', he is not missing a hat." }
+        ]
+      },
+      {
+        q: "what is rizz",
+        when: "46 min ago", chaos: 2,
+        note: "Grandma is studying the arts.",
+        results: [
+          { url: "slangmd.health/rizz", title: "What Is Rizz?", snippet: "Rizz means charisma or charm, especially romantic charm." },
+          { url: "modernwords.wiki/rizz", title: "Rizz - Definition", snippet: "Short for charisma. Usage: 'Grandma has unspoken rizz at bingo night.'" }
+        ]
+      },
+      {
+        q: "how to get rizz at 81",
+        when: "47 min ago", chaos: 4,
+        note: "She's not asking for herself. She's asking for the friend.",
+        results: [
+          { url: "silverdating.tips/confidence", title: "Charisma at Any Age", snippet: "Make eye contact, smile, listen well, and tell stories that don't start with your medications." },
+          { url: "bingoweekly.fun/style", title: "81 and Crushing It", snippet: "Top tip: bring extra butterscotch candies. That's veteran rizz." }
+        ]
+      },
+      {
+        q: "rizz delivered to my house",
+        when: "48 min ago", chaos: 5,
+        note: "She thinks you can order it like soup.",
+        results: [
+          { url: "shop.everything/charisma", title: "No Results for 'Rizz Delivered'", snippet: "We found: cologne, hats, and one suspiciously confident sweater." },
+          { url: "expressshipping.now/same-day", title: "Same Day Delivery Near You", snippet: "Rizz cannot be shipped. Confidence can be faked until mailman arrives." }
+        ]
+      },
+      {
+        q: "grandson plays roblox 9 hours a day. is roblox a gang",
+        when: "55 min ago", chaos: 3,
+        note: "Valid concern, wrong conclusion.",
+        results: [
+          { url: "parentsafe.gaming/roblox", title: "What Is Roblox?", snippet: "Roblox is an online game platform where users play and create games. Not a gang. Sometimes feels like one." },
+          { url: "familytech.guide/screen-time", title: "Healthy Gaming Limits for Kids", snippet: "9 hours a day is a lot. Consider touching grass, hydration, or a mysterious Wi-Fi outage." }
+        ]
+      },
+      {
+        q: "how to join roblox gang",
+        when: "56 min ago", chaos: 5,
+        note: "Grandma chose infiltration.",
+        results: [
+          { url: "robloxhelp.fake/groups", title: "How to Join a Roblox Group", snippet: "You can join groups on Roblox, but most are not gangs. Some are just kids selling virtual pizza." },
+          { url: "undercovergrandma.blog/mission", title: "Going Deep Undercover in Roblox", snippet: "Step 1: Create avatar. Step 2: Learn the lingo. Step 3: Do not call it 'the roblox gang' in chat." }
+        ]
+      },
+      {
+        q: "roblox gang where to buy jacket",
+        when: "57 min ago", chaos: 5,
+        note: "She is fully committed to the bit.",
+        results: [
+          { url: "avatarshop.roblox/clothing", title: "Roblox Avatar Jackets", snippet: "Digital jackets available for Robux. Real-life leather jacket not included." },
+          { url: "fashionforgamers.store/jackets", title: "Cool Jackets for Cool Grandmas", snippet: "If you're joining the roblox gang, at least look intimidating at bingo." }
+        ]
+      },
+      {
+        q: "grandson is losing at grand turismo 5 who did this give me names",
+        when: "1 hr ago", chaos: 5,
+        note: "Grandma wants blood. Digital blood.",
+        results: [
+          { url: "racingforums.gt5/thread/991", title: "GT5 Race Results Thread", snippet: "Users online: xX_TurboBrayden_Xx, SlipstreamSam, ParkingLotPaul. One of them may be responsible." },
+          { url: "answers.gaming/losing", title: "Why Is My Grandson Losing at Gran Turismo 5?", snippet: "Possible causes: cornering, braking, tire choice, or Brayden." }
+        ]
+      },
+      {
+        q: "brayden grand turismo home address",
+        when: "1 hr ago", chaos: 6,
+        note: "GRANDMA NO.",
+        results: [
+          { url: "privacyfirst.web/safety", title: "Why You Should Not Look Up Strangers Online", snippet: "Do not do this. Do not dox Brayden. Even if he brake-checked your grandson." },
+          { url: "maps.local/nope", title: "Search Blocked for Being Way Too Much", snippet: "Grandma, step away from the keyboard. Challenge Brayden to a rematch like a civilized racer." }
+        ]
+      },
+      {
+        q: "how to fight brayden legally",
+        when: "1 hr ago", chaos: 5,
+        note: "At least she's considering the legal system.",
+        results: [
+          { url: "legalish.answers/disputes", title: "How to Settle a Dispute Legally", snippet: "You cannot fistfight Brayden over Gran Turismo. You can challenge him to a rematch or small claims court in spirit." },
+          { url: "duel.rules/formal", title: "Formal Duels: Are They Legal?", snippet: "No. Not since a while ago. Try Mario Kart instead." }
+        ]
+      },
+      {
+        q: "how to beat brayden gt5",
+        when: "1 hr ago", chaos: 3,
+        note: "The healthy outlet.",
+        results: [
+          { url: "gt5.tips/cornering", title: "Gran Turismo 5 Tips to Win More Races", snippet: "Brake before corners, not during. Tune suspension. Pick the right tires. Destroy Brayden with dignity." },
+          { url: "youtube.almost/watch", title: "I BEAT BRAYDEN IN GT5 - GRANDMA STRAT", snippet: "13-minute tutorial featuring aggressive but polite racing lines." }
+        ]
+      },
+      {
+        q: "how to make my man dance",
+        when: "2 hr ago", chaos: 4,
+        note: "Could mean grandpa. Could mean anything. We're scared.",
+        results: [
+          { url: "dance.basics/living-room", title: "Easy Dance Moves for Couples", snippet: "Put on music, start simple, and encourage gentle hip movement. Results may vary by husband stubbornness." },
+          { url: "techsupport.oops/smart-speaker", title: "How to Make My Man Dance (Smart Device)", snippet: "If 'Man' is your Bluetooth speaker name, try reconnecting it and playing Motown." }
+        ]
+      },
+      {
+        q: "how to become 40 years old",
+        when: "2 hr ago", chaos: 6,
+        note: "No notes. Just respect the ambition.",
+        results: [
+          { url: "time.science/aging", title: "Can You Become Younger?", snippet: "No known method can reverse age to 40. Moisturizer helps, but not that much." },
+          { url: "wishful.thinking/fountain", title: "Top 10 Ways to Feel 40 Again", snippet: "Hydrate, stretch, dance badly, and challenge a teen named Brayden to a race." }
+        ]
+      }
+    ];
+
+    const state = {
+      items: seed.map((s, i) => ({ ...s, id: i + 1, seen: false, custom: false, verdict: null })),
+      activeId: null,
+      customCount: 0,
+      chaos: 0,
+    };
+
+    const historyEl = document.getElementById('history');
+    const resultEl = document.getElementById('result');
+    const customInput = document.getElementById('custom-input');
+    const statSeen = document.getElementById('stat-seen');
+    const statChaos = document.getElementById('stat-chaos');
+    const statCustom = document.getElementById('stat-custom');
+
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function updateStats() {
+      const seen = state.items.filter(i => i.seen).length;
+      statSeen.textContent = `seen: ${seen}/${state.items.length}`;
+      statChaos.textContent = `chaos level: ${state.chaos}`;
+      statCustom.textContent = `custom: ${state.customCount}`;
+    }
+
+    function renderHistory() {
+      historyEl.innerHTML = '';
+      [...state.items].reverse().forEach(item => {
+        const btn = document.createElement('button');
+        btn.className = 'item' + (item.id === state.activeId ? ' active' : '');
+        btn.innerHTML = `
+          <div class="q">${esc(item.q)}</div>
+          <div class="meta">
+            <span>${esc(item.when)}</span>
+            <span class="tag">chaos ${item.chaos}</span>
+            ${item.custom ? '<span class="tag new">custom</span>' : ''}
+            ${item.seen ? '<span class="tag seen">seen</span>' : ''}
+            ${item.verdict ? `<span class="tag">${esc(item.verdict)}</span>` : ''}
+          </div>
+        `;
+        btn.onclick = () => openItem(item.id);
+        historyEl.appendChild(btn);
+      });
+    }
+
+    function renderResult(item) {
+      resultEl.className = 'result';
+      resultEl.innerHTML = `
+        <div class="browser">
+          <div class="browser-top">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <div class="url">https://www.grandmasearch.com/search?q=${encodeURIComponent(item.q)}</div>
+          </div>
+          <div class="page">
+            <div class="search-head">GrandmaSearch results</div>
+            <div class="search-q">${esc(item.q)}</div>
+            ${item.results.map(r => `
+              <div class="result-card">
+                <div class="r-url">${esc(r.url)}</div>
+                <div class="r-title">${esc(r.title)}</div>
+                <div class="r-snippet">${esc(r.snippet)}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="grandma-note"><strong>Grandma note:</strong> ${esc(item.note)}</div>
+        <div class="actions">
+          <button class="btn alt" data-v="harmless">mark harmless</button>
+          <button class="btn alt" data-v="concerning">mark concerning</button>
+          <button class="btn alt" data-v="legendary">mark legendary</button>
+        </div>
+        <div class="verdict" id="verdict">${item.verdict ? `Filed as: ${esc(item.verdict)}.` : 'No verdict yet. The council awaits.'}</div>
+      `;
+      resultEl.querySelectorAll('[data-v]').forEach(b => {
+        b.addEventListener('click', () => {
+          item.verdict = b.getAttribute('data-v');
+          const v = document.getElementById('verdict');
+          if (v) v.textContent = `Filed as: ${item.verdict}.`;
+          renderHistory();
+        });
+      });
+    }
+
+    function openItem(id) {
+      const item = state.items.find(i => i.id === id);
+      if (!item) return;
+      state.activeId = id;
+      if (!item.seen) {
+        item.seen = true;
+        state.chaos += item.chaos;
+      }
+      renderHistory();
+      renderResult(item);
+      updateStats();
+    }
+
+    function makeCustomResult(q) {
+      const lower = q.toLowerCase();
+      let chaos = 2;
+      let note = "Grandma typed this with full confidence and one finger.";
+      let results = [];
+
+      if (/mailman|crush|single|date|love|rizz/.test(lower)) {
+        chaos = 4;
+        note = "Romance arc unlocked. Proceed with caution.";
+        results = [
+          { url: "heartline.advice/romance", title: "How to Pursue Love Respectfully", snippet: "Be charming, be kind, and maybe don't search this on a shared family computer." },
+          { url: "local.vibes/community", title: "People Near You Are Just Trying To Work", snippet: "Top tip: a smile works better than 14 suspicious searches in a row." }
+        ];
+      } else if (/roblox|fortnite|minecraft|game|xbox|playstation|gt5|turismo/.test(lower)) {
+        chaos = 3;
+        note = "Grandma is entering gamer mode.";
+        results = [
+          { url: "gaming.guide/newbie", title: "Beginner Guide for Concerned Grandmas", snippet: "You can learn the game. You cannot legally fight the 12-year-old who won." },
+          { url: "forums.players/help", title: "Is This Game a Gang?", snippet: "Usually no. But the chat can be spiritually hostile." }
+        ];
+      } else if (/facebook|tiktok|instagram|hashtag|internet|wifi|computer|phone/.test(lower)) {
+        chaos = 2;
+        note = "Classic tech support quest.";
+        results = [
+          { url: "easytech.help/basics", title: "Simple Tech Help for Everyday Questions", snippet: "Try turning it off and on. If that fails, glare at it with grandmother authority." },
+          { url: "ask-a-grandkid.net", title: "Should I Call My Grandkid?", snippet: "Yes. But also try pressing the obvious button first." }
+        ];
+      } else if (/fight|address|dox|kill|attack|illegal|police/.test(lower)) {
+        chaos = 6;
+        note = "Grandma has crossed into the danger zone. Redirecting to tea and cookies.";
+        results = [
+          { url: "calmdown.now/breathe", title: "Let's Take a Breath", snippet: "Whatever Brayden did, this is not the move. Drink water. Touch grass. Close tab." },
+          { url: "goodchoices.guide/conflict", title: "Handling Conflict Without Becoming a Menace", snippet: "Legal, peaceful options only. Grandma is powerful, but she must use her power wisely." }
+        ];
+      } else if (/how to/.test(lower)) {
+        chaos = 2;
+        note = "A classic grandma 'how to' query. The internet is bracing itself.";
+        results = [
+          { url: "howto.everything/answers", title: `How To: ${q.replace(/(^\w|\s\w)/g, m => m.toUpperCase())}`, snippet: "Step 1: Ask the internet. Step 2: Get 40% useful advice and 60% chaos. Step 3: Call grandson anyway." },
+          { url: "forums.realpeople/help", title: "I Tried This and It Kind Of Worked", snippet: "Top comment: 'my grandma did this too and honestly she nailed it.'" }
+        ];
+      } else {
+        results = [
+          { url: "grandmasearch.com/results", title: `Results for "${q}"`, snippet: "The internet wasn't ready for this one, but it tried its best." },
+          { url: "community.answers/thread/2048", title: "People Also Asked Something Similar", snippet: "Nobody asked it exactly like grandma did. That's her special gift." }
+        ];
+      }
+
+      return { chaos, note, results };
+    }
+
+    function addCustom() {
+      const q = customInput.value.trim();
+      if (!q) return;
+      const gen = makeCustomResult(q);
+      const item = {
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        q,
+        when: "just now",
+        chaos: gen.chaos,
+        note: gen.note,
+        results: gen.results,
+        seen: false,
+        custom: true,
+        verdict: null
+      };
+      state.items.push(item);
+      state.customCount++;
+      customInput.value = '';
+      renderHistory();
+      openItem(item.id);
+    }
+
+    document.getElementById('btn-add').addEventListener('click', addCustom);
+    customInput.addEventListener('keydown', e => { if (e.key === 'Enter') addCustom(); });
+    document.getElementById('btn-random').addEventListener('click', () => {
+      const unseen = state.items.filter(i => !i.seen);
+      const pool = unseen.length ? unseen : state.items;
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      openItem(pick.id);
+    });
+
+    renderHistory();
+    updateStats();
+  </script>
+</body>
+</html>
