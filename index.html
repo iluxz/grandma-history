@@ -17,6 +17,36 @@
       --line: rgba(59,42,31,.12);
       --shadow: 0 10px 30px rgba(59,42,31,.08);
       --radius: 18px;
+      --soft: #fffaf4;
+      --soft2: #fffdfa;
+      --input: #ffffff;
+      --link: #2f5ea8;
+      --url: #4f8b67;
+      --tag-bg: #f4ebe0;
+      --tag-fg: #6a5648;
+      --tag-new-bg: #ffe3d8; --tag-new-fg: #a2452b;
+      --tag-seen-bg: #def3e8; --tag-seen-fg: #2e6b50;
+    }
+    [data-theme="dark"] {
+      --bg: #1a1412;
+      --panel: #241c19;
+      --panel2: #332723;
+      --ink: #f5e7dc;
+      --muted: #c2a99a;
+      --accent: #ff8a5b;
+      --accent2: #7cc6a3;
+      --danger: #ff6b81;
+      --line: rgba(245,231,220,.12);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --soft: #2b211d;
+      --soft2: #2a201d;
+      --input: #1d1715;
+      --link: #8ab4ff;
+      --url: #8fd0a8;
+      --tag-bg: #3a2d28;
+      --tag-fg: #e2cfc2;
+      --tag-new-bg: #5a3328; --tag-new-fg: #ffb8a3;
+      --tag-seen-bg: #294034; --tag-seen-fg: #b8e6cd;
     }
     * { box-sizing: border-box; }
     body {
@@ -28,6 +58,14 @@
         radial-gradient(circle at top right, #ffd9cc, transparent 25%),
         linear-gradient(180deg, #fffaf3, var(--bg));
       min-height: 100vh;
+      transition: background .2s ease, color .2s ease;
+    }
+    [data-theme="dark"] body, body[data-theme="dark"] { }
+    [data-theme="dark"] body {
+      background:
+        radial-gradient(circle at top left, rgba(255,180,90,.12), transparent 28%),
+        radial-gradient(circle at top right, rgba(255,138,91,.12), transparent 25%),
+        linear-gradient(180deg, #211917, var(--bg));
     }
     .wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
     .top {
@@ -37,12 +75,13 @@
     h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.6rem); line-height: .95; letter-spacing: -.03em; }
     .sub { color: var(--muted); margin-top: 8px; font-size: 1rem; max-width: 70ch; }
     .stats {
-      display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end;
+      display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; align-items: center;
     }
     .pill {
       background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow);
       padding: 10px 14px; border-radius: 999px; font-weight: 700; font-size: .92rem;
     }
+    .theme-toggle { cursor: pointer; user-select: none; }
     .grid {
       display: grid; grid-template-columns: 1.05fr .95fr; gap: 18px;
     }
@@ -51,17 +90,17 @@
       box-shadow: var(--shadow); overflow: hidden; min-height: 300px;
     }
     .card-h {
-      padding: 16px 18px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #fff, #fffaf2);
+      padding: 16px 18px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, var(--panel), var(--soft));
       display: flex; justify-content: space-between; gap: 12px; align-items: center;
     }
     .card-h h2 { margin: 0; font-size: 1.05rem; }
     .card-h p { margin: 4px 0 0; color: var(--muted); font-size: .9rem; }
     .searchbar {
-      display: flex; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); background: #fffaf4;
+      display: flex; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); background: var(--soft);
     }
     .searchbar input {
       flex: 1; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line);
-      font: inherit; background: white; color: var(--ink);
+      font: inherit; background: var(--input); color: var(--ink);
     }
     .searchbar button, .btn {
       border: 0; border-radius: 12px; padding: 12px 14px; font: inherit; font-weight: 800; cursor: pointer;
@@ -69,37 +108,43 @@
     }
     .searchbar button:hover, .btn:hover { transform: translateY(-1px); filter: brightness(1.02); }
     .searchbar button:active, .btn:active { transform: translateY(1px); box-shadow: 0 3px 0 rgba(59,42,31,.12); }
-    .btn.alt { background: #efe2d1; color: var(--ink); box-shadow: none; border: 1px solid var(--line); }
+    .btn.alt { background: var(--panel2); color: var(--ink); box-shadow: none; border: 1px solid var(--line); }
     .history { padding: 10px; max-height: 68vh; overflow: auto; }
     .item {
-      width: 100%; text-align: left; background: white; border: 1px solid var(--line); border-radius: 14px;
+      width: 100%; text-align: left; background: var(--input); border: 1px solid var(--line); border-radius: 14px;
       padding: 12px 14px; margin: 8px 0; cursor: pointer; display: grid; gap: 4px;
       transition: transform .08s ease, border-color .12s ease, background .12s ease;
     }
-    .item:hover { transform: translateY(-1px); border-color: rgba(255,138,91,.45); background: #fffdfa; }
-    .item.active { border-color: var(--accent); background: #fff5ee; box-shadow: inset 0 0 0 1px rgba(255,138,91,.25); }
+    .item:hover { transform: translateY(-1px); border-color: rgba(255,138,91,.45); background: var(--soft2); }
+    .item.active { border-color: var(--accent); background: var(--panel2); box-shadow: inset 0 0 0 1px rgba(255,138,91,.25); }
     .q { font-weight: 800; font-size: .98rem; line-height: 1.3; }
     .meta { color: var(--muted); font-size: .8rem; display: flex; gap: 10px; flex-wrap: wrap; }
-    .tag { padding: 2px 8px; border-radius: 999px; background: #f4ebe0; font-weight: 700; font-size: .72rem; color: #6a5648; }
-    .tag.new { background: #ffe3d8; color: #a2452b; }
-    .tag.seen { background: #def3e8; color: #2e6b50; }
+    .tag { padding: 2px 8px; border-radius: 999px; background: var(--tag-bg); font-weight: 700; font-size: .72rem; color: var(--tag-fg); }
+    .tag.new { background: var(--tag-new-bg); color: var(--tag-new-fg); }
+    .tag.seen { background: var(--tag-seen-bg); color: var(--tag-seen-fg); }
     .result { padding: 18px; display: grid; gap: 14px; }
     .empty { color: var(--muted); padding: 30px 18px; font-size: 1rem; line-height: 1.6; }
     .browser {
-      border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: white;
+      border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--input);
     }
     .browser-top {
-      background: #f4efe8; padding: 10px 12px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; align-items: center;
+      background: var(--soft); padding: 10px 12px; border-bottom: 1px solid var(--line); display: flex; gap: 8px; align-items: center;
     }
     .dot { width: 10px; height: 10px; border-radius: 50%; background: #d8c8ba; }
-    .url { flex: 1; background: white; border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; font-size: .82rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    [data-theme="dark"] .dot { background: #6b5a52; }
+    .url { flex: 1; background: var(--input); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; font-size: .82rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .page { padding: 16px; }
-    .search-head { font-size: .8rem; color: #6b7f75; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+    .search-head { font-size: .8rem; color: var(--accent2); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
     .search-q { font-size: 1.5rem; font-weight: 900; margin: 6px 0 14px; line-height: 1.2; }
-    .result-card { border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin: 10px 0; background: #fffdfa; }
-    .r-url { font-size: .78rem; color: #4f8b67; font-weight: 700; }
-    .r-title { font-size: 1.05rem; font-weight: 800; color: #2f5ea8; margin: 3px 0; }
-    .r-snippet { color: #4e433d; font-size: .93rem; line-height: 1.5; }
+    .result-card { border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin: 10px 0; background: var(--soft2); cursor: pointer; transition: transform .08s ease, border-color .12s ease, background .12s ease; }
+    .result-card:hover { transform: translateY(-1px); border-color: rgba(255,138,91,.45); background: var(--panel2); }
+    .result-card.open { border-color: rgba(255,138,91,.35); }
+    .r-url { font-size: .78rem; color: var(--url); font-weight: 700; }
+    .r-title { font-size: 1.05rem; font-weight: 800; color: var(--link); margin: 3px 0; }
+    .r-snippet { color: var(--ink); opacity: .9; font-size: .93rem; line-height: 1.5; }
+    .r-extra { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); color: var(--muted); font-size: .88rem; line-height: 1.55; }
+    .result-card.open .r-extra { display: block; }
+    .r-hint { font-size: .74rem; color: var(--muted); margin-top: 6px; font-weight: 700; }
     .grandma-note {
       background: var(--panel2); border: 1px dashed rgba(255,138,91,.45); padding: 13px 14px; border-radius: 14px;
       font-size: .94rem; line-height: 1.5;
@@ -123,6 +168,7 @@
         <div class="sub">you have been granted temporary access to grandma's computer. click a search to see what popped up. add your own custom searches. decide what is harmless, what is concerning, and what is legendary.</div>
       </div>
       <div class="stats">
+        <button class="pill theme-toggle" id="btn-theme" title="toggle dark mode">dark mode: off</button>
         <div class="pill" id="stat-seen">seen: 0</div>
         <div class="pill" id="stat-chaos">chaos level: 0</div>
         <div class="pill" id="stat-custom">custom: 0</div>
@@ -163,244 +209,244 @@
       {
         q: "how to turn on computer; thank you computer",
         when: "2 min ago", chaos: 1,
-        note: "Grandma was being polite to the machine. Respect.",
+        note: "Grandma thanked the computer before AND after turning it on. the computer is now emotionally attached.",
         results: [
-          { url: "support.grandmapc.help/power-button", title: "How to Turn On a Computer - Beginner Guide", snippet: "Locate the power button. Press once. Wait patiently. Do not apologize to the monitor, but it is appreciated." },
-          { url: "forums.kindusers.net/thread/8841", title: "Is it normal to thank your computer?", snippet: "Top answer: Yes. 73% of grandmas report better Wi-Fi after saying please and thank you." }
+          { url: "support.grandmapc.help/power-button", title: "How to Turn On a Computer - Beginner Guide", snippet: "Locate the power button. Press once. Wait patiently. Do not apologize to the monitor, but it is appreciated.", extra: "Grandma pressed the power button, whispered 'good luck brave soldier', and saluted the tower." },
+          { url: "forums.kindusers.net/thread/8841", title: "Is it normal to thank your computer?", snippet: "Top answer: Yes. 73% of grandmas report better Wi-Fi after saying please and thank you.", extra: "One reply said 'my PC stopped blue screening after I started calling it sweetheart'. grandma bookmarked this immediately." }
         ]
       },
       {
         q: "how to make letters big",
         when: "7 min ago", chaos: 1,
-        note: "The eternal battle begins.",
+        note: "The eternal battle begins. grandma vs. font size, round 1.",
         results: [
-          { url: "accessibility.basics/zoom", title: "Make Text Bigger on Any Screen", snippet: "Press Ctrl and + to zoom in. You can also change display scaling in settings." },
-          { url: "askmildred.blog/readable", title: "Big Letters for Tired Eyes", snippet: "If the letters are still small, they are being rude on purpose." }
+          { url: "accessibility.basics/zoom", title: "Make Text Bigger on Any Screen", snippet: "Press Ctrl and + to zoom in. You can also change display scaling in settings.", extra: "Grandma held Ctrl and pressed + until the word 'Welcome' became a threat." },
+          { url: "askmildred.blog/readable", title: "Big Letters for Tired Eyes", snippet: "If the letters are still small, they are being rude on purpose.", extra: "Mildred recommends printing the entire internet in size 72 font. grandma is considering it." }
         ]
       },
       {
         q: "how to make letters small again",
         when: "8 min ago", chaos: 1,
-        note: "She flew too close to the sun.",
+        note: "She flew too close to the sun. the letter 'A' filled the monitor.",
         results: [
-          { url: "accessibility.basics/zoom", title: "How to Zoom Back Out", snippet: "Press Ctrl and - to zoom out. Press Ctrl + 0 to reset. Breathe." },
-          { url: "techrescue.local/too-big", title: "My Screen Is Huge Now Help", snippet: "You have not broken the internet. The letters are just yelling." }
+          { url: "accessibility.basics/zoom", title: "How to Zoom Back Out", snippet: "Press Ctrl and - to zoom out. Press Ctrl + 0 to reset. Breathe.", extra: "Grandma zoomed out so far she could see atoms. then one more click and the website vanished into witness protection." },
+          { url: "techrescue.local/too-big", title: "My Screen Is Huge Now Help", snippet: "You have not broken the internet. The letters are just yelling.", extra: "Forum reply: 'ma'am you are zoomed in to 800%, that is not a headline, that is a cry for help.'" }
         ]
       },
       {
         q: "how to make letters big again",
         when: "9 min ago", chaos: 2,
-        note: "The cycle continues. There is no escape.",
+        note: "The cycle continues. this is her cardio now.",
         results: [
-          { url: "accessibility.basics/zoom", title: "Make Text Bigger (Again)", snippet: "Ctrl and + still works. It has always worked. It will always work." },
-          { url: "grandmasupport.group/topic/letter-size", title: "Finding Your Perfect Letter Size", snippet: "Many users oscillate between 'too small' and 'the website is screaming' for 14-22 minutes." }
+          { url: "accessibility.basics/zoom", title: "Make Text Bigger (Again)", snippet: "Ctrl and + still works. It has always worked. It will always work.", extra: "Ctrl and + have been pressed so many times they filed a workplace complaint." },
+          { url: "grandmasupport.group/topic/letter-size", title: "Finding Your Perfect Letter Size", snippet: "Many users oscillate between 'too small' and 'the website is screaming' for 14-22 minutes.", extra: "Grandma's ideal font size is 'visible from the driveway'." }
         ]
       },
       {
         q: "what is a hashtag",
         when: "14 min ago", chaos: 1,
-        note: "Innocent question. Dangerous timeline.",
+        note: "Innocent question. the last peaceful moment before the hashtag arc.",
         results: [
-          { url: "internet101.edu/hashtag", title: "What Is a Hashtag?", snippet: "A hashtag is a word or phrase preceded by # used to categorize posts on social media." },
-          { url: "socialsplainers.com/symbols", title: "The Pound Sign's Wild Second Life", snippet: "Formerly known as the number sign, fence, or tic-tac-toe button." }
+          { url: "internet101.edu/hashtag", title: "What Is a Hashtag?", snippet: "A hashtag is a word or phrase preceded by # used to categorize posts on social media.", extra: "Grandma wrote it down as 'hash brown tag' and honestly? better name." },
+          { url: "socialsplainers.com/symbols", title: "The Pound Sign's Wild Second Life", snippet: "Formerly known as the number sign, fence, or tic-tac-toe button.", extra: "Grandma is furious that the tic-tac-toe button got a rap career without telling her." }
         ]
       },
       {
         q: "is hashtag a crime",
         when: "15 min ago", chaos: 3,
-        note: "She saw one hashtag too many.",
+        note: "She saw #LiveLaughLove one too many times and contacted the authorities.",
         results: [
-          { url: "lawanswers.fake/hashtags", title: "Are Hashtags Illegal?", snippet: "No. Hashtags are not crimes. Using 47 of them in one birthday post is a social offense only." },
-          { url: "localnews.blog/police-blotter", title: "Police Confirm: No Hashtag Arrests This Week", snippet: "Authorities remind citizens that #blessed is annoying, not a felony." }
+          { url: "lawanswers.fake/hashtags", title: "Are Hashtags Illegal?", snippet: "No. Hashtags are not crimes. Using 47 of them in one birthday post is a social offense only.", extra: "Grandma asked if she can citizen's arrest someone for #YOLO. the lawyer said 'please stop calling this number'." },
+          { url: "localnews.blog/police-blotter", title: "Police Confirm: No Hashtag Arrests This Week", snippet: "Authorities remind citizens that #blessed is annoying, not a felony.", extra: "Officer on record: 'ma'am, we cannot SWAT team a Facebook post just because it said #MondayMood.'" }
         ]
       },
       {
         q: "how to delete hashtag from my face",
         when: "16 min ago", chaos: 4,
-        note: "Grandma may have discovered face filters.",
+        note: "Grandma discovered face filters and now believes she has been digitally branded.",
         results: [
-          { url: "phonehelp.today/camera-filters", title: "Remove Stickers and Filters From Camera", snippet: "Open your camera app, tap Effects or Filters, and turn off face stickers." },
-          { url: "beauty.ask/mark-removal", title: "How to Remove a Hashtag From Your Face", snippet: "If it is a real marker: soap and water. If it is digital: tap the sparkle icon." }
+          { url: "phonehelp.today/camera-filters", title: "Remove Stickers and Filters From Camera", snippet: "Open your camera app, tap Effects or Filters, and turn off face stickers.", extra: "She tried scrubbing the phone screen with a wet wipe. the hashtag survived. morale dropped." },
+          { url: "beauty.ask/mark-removal", title: "How to Remove a Hashtag From Your Face", snippet: "If it is a real marker: soap and water. If it is digital: tap the sparkle icon.", extra: "Grandma tapped every sparkle on screen including a jewelry ad. she now owns a $12 ring." }
         ]
       },
       {
         q: "how to videocall grandson",
         when: "22 min ago", chaos: 1,
-        note: "Sweet. Pure. A little dangerous for the front camera.",
+        note: "Sweet. Pure. about to become a chin-based horror film.",
         results: [
-          { url: "familytech.guide/video-call", title: "How to Video Call Your Family", snippet: "Open FaceTime, WhatsApp, or Messenger, find the contact, and tap the video icon." },
-          { url: "grandkid.support/connect", title: "Calling Grandson Without Panic", snippet: "Step 1: Press call. Step 2: Do not hang up immediately because you saw yourself." }
+          { url: "familytech.guide/video-call", title: "How to Video Call Your Family", snippet: "Open FaceTime, WhatsApp, or Messenger, find the contact, and tap the video icon.", extra: "Grandma called him on FaceTime, WhatsApp, AND regular phone at the same time for maximum coverage." },
+          { url: "grandkid.support/connect", title: "Calling Grandson Without Panic", snippet: "Step 1: Press call. Step 2: Do not hang up immediately because you saw yourself.", extra: "She saw her own face, gasped, said 'who is THAT', and hung up on herself." }
         ]
       },
       {
         q: "how to see grandson's face and not my chin",
         when: "23 min ago", chaos: 2,
-        note: "Front camera betrayed her again.",
+        note: "Front camera betrayed her again. grandson saw 95% chin, 5% ceiling fan.",
         results: [
-          { url: "camera.tips/front-angle", title: "How to Position Your Phone on Video Calls", snippet: "Hold the phone at eye level, about an arm's length away. The camera is not hunting your chin." },
-          { url: "etiquette.online/video", title: "Video Call Framing for Beginners", snippet: "Recommended: face in frame. Not recommended: dramatic chin close-up, ceiling fan documentary." }
+          { url: "camera.tips/front-angle", title: "How to Position Your Phone on Video Calls", snippet: "Hold the phone at eye level, about an arm's length away. The camera is not hunting your chin.", extra: "The camera IS hunting her chin. it has a personal vendetta. it's winning." },
+          { url: "etiquette.online/video", title: "Video Call Framing for Beginners", snippet: "Recommended: face in frame. Not recommended: dramatic chin close-up, ceiling fan documentary.", extra: "Grandson's POV: he is being FaceTimed by a sentient chin narrating a ceiling fan documentary." }
         ]
       },
       {
         q: "how to stop seeing my chin",
         when: "24 min ago", chaos: 3,
-        note: "At this point it's personal.",
+        note: "At this point it's personal. grandma vs chin, final boss.",
         results: [
-          { url: "selfcare.mirror/angles", title: "Camera Angles That Feel Kinder", snippet: "Raise the camera slightly above eye level. Soft lighting helps. Your chin is fine." },
-          { url: "forums.grandmavision/threads/77", title: "I Keep Seeing My Chin", snippet: "Best answer: cover the little self-view box with a sticky note. Legendary move." }
+          { url: "selfcare.mirror/angles", title: "Camera Angles That Feel Kinder", snippet: "Raise the camera slightly above eye level. Soft lighting helps. Your chin is fine.", extra: "The website said 'your chin is fine'. grandma whispered 'liar' and kept scrolling." },
+          { url: "forums.grandmavision/threads/77", title: "I Keep Seeing My Chin", snippet: "Best answer: cover the little self-view box with a sticky note. Legendary move.", extra: "Grandma used a whole Post-it pad. her self-view is now a yellow square of peace and denial." }
         ]
       },
       {
         q: "is the mailman single",
         when: "31 min ago", chaos: 3,
-        note: "We are entering new territory.",
+        note: "We are entering new territory. the mailman has no idea he's in an arc.",
         results: [
-          { url: "local.community/people", title: "Community Directory", snippet: "No public relationship status available for your mail carrier. Please do not ask through the mailbox slot." },
-          { url: "advice.corner/dating", title: "How to Ask If Someone Is Single", snippet: "Try casual conversation. Avoid intercepting certified mail for reconnaissance." }
+          { url: "local.community/people", title: "Community Directory", snippet: "No public relationship status available for your mail carrier. Please do not ask through the mailbox slot.", extra: "Grandma checked the mailbox 6 times today. she has received exactly one flyer for gutter cleaning." },
+          { url: "advice.corner/dating", title: "How to Ask If Someone Is Single", snippet: "Try casual conversation. Avoid intercepting certified mail for reconnaissance.", extra: "Grandma wrote 'are you single y/n' on an outgoing envelope. the post office is concerned." }
         ]
       },
       {
         q: "is the mailman single for my friend",
         when: "32 min ago", chaos: 4,
-        note: "Classic cover story.",
+        note: "Classic cover story. the friend has a name. it's grandma.",
         results: [
-          { url: "advice.corner/friend", title: "Asking For a Friend: A Guide", snippet: "If you say 'for my friend' three times, everyone knows it's you." },
-          { url: "mailroutes.info/faq", title: "Mail Carrier FAQ", snippet: "Q: Is my mailman single? A: Please just sign for the package." }
+          { url: "advice.corner/friend", title: "Asking For a Friend: A Guide", snippet: "If you say 'for my friend' three times, everyone knows it's you.", extra: "Grandma said 'asking for a friend' out loud to an empty room. the cat didn't buy it either." },
+          { url: "mailroutes.info/faq", title: "Mail Carrier FAQ", snippet: "Q: Is my mailman single? A: Please just sign for the package.", extra: "The FAQ was updated because of her. there is now a whole section called 'Please Stop'." }
         ]
       },
       {
         q: "i am the friend",
         when: "33 min ago", chaos: 5,
-        note: "Honesty. Courage. Chaos.",
+        note: "Honesty. Courage. Chaos. she came clean to Google.",
         results: [
-          { url: "confessions.local/honesty", title: "Powerful Things to Admit", snippet: "Admitting you are the friend is the first step toward mailbox-side romance." },
-          { url: "datingafter70.guide/confidence", title: "Confidence Is Attractive at Any Age", snippet: "Directness score: 100/100. Subtlety score: 0/100." }
+          { url: "confessions.local/honesty", title: "Powerful Things to Admit", snippet: "Admitting you are the friend is the first step toward mailbox-side romance.", extra: "Grandma typed this like she was confessing to a crime in a police drama. single tear. dramatic lighting from the monitor." },
+          { url: "datingafter70.guide/confidence", title: "Confidence Is Attractive at Any Age", snippet: "Directness score: 100/100. Subtlety score: 0/100.", extra: "The article called her 'fearlessly transparent'. her search history calls her 'down astronomically bad'." }
         ]
       },
       {
         q: "how to send heart to grandson",
         when: "40 min ago", chaos: 1,
-        note: "She means a text reaction. Probably.",
+        note: "She means a text reaction. probably. 20% chance she tries to mail an actual heart.",
         results: [
-          { url: "messages.help/reactions", title: "How to Send a Heart Reaction", snippet: "In most messaging apps, press and hold the message, then tap the heart." },
-          { url: "cards.digital/love", title: "Send Love Online", snippet: "You can also send a heart emoji, GIF, or an accidental 12-second voice note." }
+          { url: "messages.help/reactions", title: "How to Send a Heart Reaction", snippet: "In most messaging apps, press and hold the message, then tap the heart.", extra: "Grandma held the message for 45 seconds. she accidentally reacted with a thumbs up, a laugh, and a question mark." },
+          { url: "cards.digital/love", title: "Send Love Online", snippet: "You can also send a heart emoji, GIF, or an accidental 12-second voice note.", extra: "She sent the voice note. it's 12 seconds of her breathing and then 'ok i think it worked'. it did not work." }
         ]
       },
       {
         q: "grandson says everything is bussin. is he sick?",
         when: "45 min ago", chaos: 2,
-        note: "Medical concern: slang.",
+        note: "Medical concern: slang. grandma called poison control just in case.",
         results: [
-          { url: "slangmd.health/bussin", title: "What Does 'Bussin' Mean?", snippet: "'Bussin' means really good, especially food. No antibiotics required." },
-          { url: "parentline.answers/teen-speak", title: "Teen Slang Translation Guide", snippet: "If grandson says dinner is bussin, he likes it. If he says 'no cap', he is not missing a hat." }
+          { url: "slangmd.health/bussin", title: "What Does 'Bussin' Mean?", snippet: "'Bussin' means really good, especially food. No antibiotics required.", extra: "Grandma: 'so he's not bussin from a disease?' Doctor: 'ma'am please stop saying it like that.'" },
+          { url: "parentline.answers/teen-speak", title: "Teen Slang Translation Guide", snippet: "If grandson says dinner is bussin, he likes it. If he says 'no cap', he is not missing a hat.", extra: "Grandma now says 'this soup is bussin, no cap' at church. the congregation is processing it." }
         ]
       },
       {
         q: "what is rizz",
         when: "46 min ago", chaos: 2,
-        note: "Grandma is studying the arts.",
+        note: "Grandma is studying the arts. a scholar of rizzology.",
         results: [
-          { url: "slangmd.health/rizz", title: "What Is Rizz?", snippet: "Rizz means charisma or charm, especially romantic charm." },
-          { url: "modernwords.wiki/rizz", title: "Rizz - Definition", snippet: "Short for charisma. Usage: 'Grandma has unspoken rizz at bingo night.'" }
+          { url: "slangmd.health/rizz", title: "What Is Rizz?", snippet: "Rizz means charisma or charm, especially romantic charm.", extra: "Grandma nodded slowly and said 'ah, so i have had rizz this whole time'. dangerous confidence boost." },
+          { url: "modernwords.wiki/rizz", title: "Rizz - Definition", snippet: "Short for charisma. Usage: 'Grandma has unspoken rizz at bingo night.'", extra: "She highlighted this sentence, printed it, and put it on the fridge." }
         ]
       },
       {
         q: "how to get rizz at 81",
         when: "47 min ago", chaos: 4,
-        note: "She's not asking for herself. She's asking for the friend.",
+        note: "She's not asking for herself. she's asking for 'the friend' (the friend is her).",
         results: [
-          { url: "silverdating.tips/confidence", title: "Charisma at Any Age", snippet: "Make eye contact, smile, listen well, and tell stories that don't start with your medications." },
-          { url: "bingoweekly.fun/style", title: "81 and Crushing It", snippet: "Top tip: bring extra butterscotch candies. That's veteran rizz." }
+          { url: "silverdating.tips/confidence", title: "Charisma at Any Age", snippet: "Make eye contact, smile, listen well, and tell stories that don't start with your medications.", extra: "Grandma immediately failed rule 4. her opener is 'anyway my hip has been making this sound'." },
+          { url: "bingoweekly.fun/style", title: "81 and Crushing It", snippet: "Top tip: bring extra butterscotch candies. That's veteran rizz.", extra: "Grandma loaded her purse with Werther's Originals like she's going to war. this is tactical rizz." }
         ]
       },
       {
         q: "rizz delivered to my house",
         when: "48 min ago", chaos: 5,
-        note: "She thinks you can order it like soup.",
+        note: "She thinks you can order rizz on DoorDash. honestly? fair assumption.",
         results: [
-          { url: "shop.everything/charisma", title: "No Results for 'Rizz Delivered'", snippet: "We found: cologne, hats, and one suspiciously confident sweater." },
-          { url: "expressshipping.now/same-day", title: "Same Day Delivery Near You", snippet: "Rizz cannot be shipped. Confidence can be faked until mailman arrives." }
+          { url: "shop.everything/charisma", title: "No Results for 'Rizz Delivered'", snippet: "We found: cologne, hats, and one suspiciously confident sweater.", extra: "Grandma added the 'suspiciously confident sweater' to cart. it has 1 review: 'my wife left me but i felt powerful'." },
+          { url: "expressshipping.now/same-day", title: "Same Day Delivery Near You", snippet: "Rizz cannot be shipped. Confidence can be faked until mailman arrives.", extra: "She tried to add rizz to her grocery order between bananas and prune juice. the app crashed out of respect." }
         ]
       },
       {
         q: "grandson plays roblox 9 hours a day. is roblox a gang",
         when: "55 min ago", chaos: 3,
-        note: "Valid concern, wrong conclusion.",
+        note: "Valid concern, wrong conclusion. roblox is not a gang but it does have a weird economy.",
         results: [
-          { url: "parentsafe.gaming/roblox", title: "What Is Roblox?", snippet: "Roblox is an online game platform where users play and create games. Not a gang. Sometimes feels like one." },
-          { url: "familytech.guide/screen-time", title: "Healthy Gaming Limits for Kids", snippet: "9 hours a day is a lot. Consider touching grass, hydration, or a mysterious Wi-Fi outage." }
+          { url: "parentsafe.gaming/roblox", title: "What Is Roblox?", snippet: "Roblox is an online game platform where users play and create games. Not a gang. Sometimes feels like one.", extra: "Grandma read 'user-generated games' and pictured grandson in a factory making video games with a hammer." },
+          { url: "familytech.guide/screen-time", title: "Healthy Gaming Limits for Kids", snippet: "9 hours a day is a lot. Consider touching grass, hydration, or a mysterious Wi-Fi outage.", extra: "Grandma underlined 'mysterious Wi-Fi outage' with the intensity of someone planning a heist." }
         ]
       },
       {
         q: "how to join roblox gang",
         when: "56 min ago", chaos: 5,
-        note: "Grandma chose infiltration.",
+        note: "Grandma chose infiltration. she is going undercover in the roblox underworld.",
         results: [
-          { url: "robloxhelp.fake/groups", title: "How to Join a Roblox Group", snippet: "You can join groups on Roblox, but most are not gangs. Some are just kids selling virtual pizza." },
-          { url: "undercovergrandma.blog/mission", title: "Going Deep Undercover in Roblox", snippet: "Step 1: Create avatar. Step 2: Learn the lingo. Step 3: Do not call it 'the roblox gang' in chat." }
+          { url: "robloxhelp.fake/groups", title: "How to Join a Roblox Group", snippet: "You can join groups on Roblox, but most are not gangs. Some are just kids selling virtual pizza.", extra: "Grandma joined a group called 'Epic Pizza Squad' thinking it was a cartel front. it's literally just kids selling virtual pizza." },
+          { url: "undercovergrandma.blog/mission", title: "Going Deep Undercover in Roblox", snippet: "Step 1: Create avatar. Step 2: Learn the lingo. Step 3: Do not call it 'the roblox gang' in chat.", extra: "Her avatar is named 'GRANDMA_SPY_REAL_81' and she immediately asked the chat where the illegal robux are kept." }
         ]
       },
       {
         q: "roblox gang where to buy jacket",
         when: "57 min ago", chaos: 5,
-        note: "She is fully committed to the bit.",
+        note: "She is fully committed to the bit. the drip must be secured before the mission.",
         results: [
-          { url: "avatarshop.roblox/clothing", title: "Roblox Avatar Jackets", snippet: "Digital jackets available for Robux. Real-life leather jacket not included." },
-          { url: "fashionforgamers.store/jackets", title: "Cool Jackets for Cool Grandmas", snippet: "If you're joining the roblox gang, at least look intimidating at bingo." }
+          { url: "avatarshop.roblox/clothing", title: "Roblox Avatar Jackets", snippet: "Digital jackets available for Robux. Real-life leather jacket not included.", extra: "Grandma spent 400 Robux on a black leather jacket for her avatar. her grandson's college fund felt a disturbance." },
+          { url: "fashionforgamers.store/jackets", title: "Cool Jackets for Cool Grandmas", snippet: "If you're joining the roblox gang, at least look intimidating at bingo.", extra: "She ordered a matching real jacket. she plans to show up to bingo looking like she runs a motorcycle club." }
         ]
       },
       {
         q: "grandson is losing at grand turismo 5 who did this give me names",
         when: "1 hr ago", chaos: 5,
-        note: "Grandma wants blood. Digital blood.",
+        note: "Grandma wants blood. digital blood. preferably Brayden's.",
         results: [
-          { url: "racingforums.gt5/thread/991", title: "GT5 Race Results Thread", snippet: "Users online: xX_TurboBrayden_Xx, SlipstreamSam, ParkingLotPaul. One of them may be responsible." },
-          { url: "answers.gaming/losing", title: "Why Is My Grandson Losing at Gran Turismo 5?", snippet: "Possible causes: cornering, braking, tire choice, or Brayden." }
+          { url: "racingforums.gt5/thread/991", title: "GT5 Race Results Thread", snippet: "Users online: xX_TurboBrayden_Xx, SlipstreamSam, ParkingLotPaul. One of them may be responsible.", extra: "Grandma wrote down all three names in a little notebook labeled 'ENEMIES'. ParkingLotPaul is innocent but he's on the list now." },
+          { url: "answers.gaming/losing", title: "Why Is My Grandson Losing at Gran Turismo 5?", snippet: "Possible causes: cornering, braking, tire choice, or Brayden.", extra: "Grandma circled 'Brayden' so hard the pen went through the paper. the investigation has a prime suspect." }
         ]
       },
       {
         q: "brayden grand turismo home address",
         when: "1 hr ago", chaos: 6,
-        note: "GRANDMA NO.",
+        note: "GRANDMA NO. put the keyboard down. step away from the war crimes.",
         results: [
-          { url: "privacyfirst.web/safety", title: "Why You Should Not Look Up Strangers Online", snippet: "Do not do this. Do not dox Brayden. Even if he brake-checked your grandson." },
-          { url: "maps.local/nope", title: "Search Blocked for Being Way Too Much", snippet: "Grandma, step away from the keyboard. Challenge Brayden to a rematch like a civilized racer." }
+          { url: "privacyfirst.web/safety", title: "Why You Should Not Look Up Strangers Online", snippet: "Do not do this. Do not dox Brayden. Even if he brake-checked your grandson.", extra: "The website literally played a siren sound in her imagination. grandma squinted harder." },
+          { url: "maps.local/nope", title: "Search Blocked for Being Way Too Much", snippet: "Grandma, step away from the keyboard. Challenge Brayden to a rematch like a civilized racer.", extra: "Google itself put her in timeout. 'you have been too powerful. go drink water.'" }
         ]
       },
       {
         q: "how to fight brayden legally",
         when: "1 hr ago", chaos: 5,
-        note: "At least she's considering the legal system.",
+        note: "At least she's considering the legal system. growth.",
         results: [
-          { url: "legalish.answers/disputes", title: "How to Settle a Dispute Legally", snippet: "You cannot fistfight Brayden over Gran Turismo. You can challenge him to a rematch or small claims court in spirit." },
-          { url: "duel.rules/formal", title: "Formal Duels: Are They Legal?", snippet: "No. Not since a while ago. Try Mario Kart instead." }
+          { url: "legalish.answers/disputes", title: "How to Settle a Dispute Legally", snippet: "You cannot fistfight Brayden over Gran Turismo. You can challenge him to a rematch or small claims court in spirit.", extra: "Grandma asked if she can sue a child for 'emotional damage via racing game'. lawyer hung up so fast it broke the sound barrier." },
+          { url: "duel.rules/formal", title: "Formal Duels: Are They Legal?", snippet: "No. Not since a while ago. Try Mario Kart instead.", extra: "She's disappointed duels aren't legal but intrigued by the Mario Kart loophole." }
         ]
       },
       {
         q: "how to beat brayden gt5",
         when: "1 hr ago", chaos: 3,
-        note: "The healthy outlet.",
+        note: "The healthy outlet. finally, peace. violence averted. for now.",
         results: [
-          { url: "gt5.tips/cornering", title: "Gran Turismo 5 Tips to Win More Races", snippet: "Brake before corners, not during. Tune suspension. Pick the right tires. Destroy Brayden with dignity." },
-          { url: "youtube.almost/watch", title: "I BEAT BRAYDEN IN GT5 - GRANDMA STRAT", snippet: "13-minute tutorial featuring aggressive but polite racing lines." }
+          { url: "gt5.tips/cornering", title: "Gran Turismo 5 Tips to Win More Races", snippet: "Brake before corners, not during. Tune suspension. Pick the right tires. Destroy Brayden with dignity.", extra: "Grandma took notes in the 'ENEMIES' notebook. page 1: Brayden. page 2: apex angles." },
+          { url: "youtube.almost/watch", title: "I BEAT BRAYDEN IN GT5 - GRANDMA STRAT", snippet: "13-minute tutorial featuring aggressive but polite racing lines.", extra: "The thumbnail is just a stock photo of a grandma wearing racing goggles. she felt seen." }
         ]
       },
       {
         q: "how to make my man dance",
         when: "2 hr ago", chaos: 4,
-        note: "Could mean grandpa. Could mean anything. We're scared.",
+        note: "Could mean grandpa. could mean the bluetooth speaker. could mean a hostage situation. unclear.",
         results: [
-          { url: "dance.basics/living-room", title: "Easy Dance Moves for Couples", snippet: "Put on music, start simple, and encourage gentle hip movement. Results may vary by husband stubbornness." },
-          { url: "techsupport.oops/smart-speaker", title: "How to Make My Man Dance (Smart Device)", snippet: "If 'Man' is your Bluetooth speaker name, try reconnecting it and playing Motown." }
+          { url: "dance.basics/living-room", title: "Easy Dance Moves for Couples", snippet: "Put on music, start simple, and encourage gentle hip movement. Results may vary by husband stubbornness.", extra: "Grandpa refused to move. grandma turned up the Motown louder. this is now a standoff." },
+          { url: "techsupport.oops/smart-speaker", title: "How to Make My Man Dance (Smart Device)", snippet: "If 'Man' is your Bluetooth speaker name, try reconnecting it and playing Motown.", extra: "Plot twist: she meant the speaker. the speaker's name is 'Man'. grandpa is relieved." }
         ]
       },
       {
         q: "how to become 40 years old",
         when: "2 hr ago", chaos: 6,
-        note: "No notes. Just respect the ambition.",
+        note: "No notes. just respect the ambition. she's shooting her shot at time itself.",
         results: [
-          { url: "time.science/aging", title: "Can You Become Younger?", snippet: "No known method can reverse age to 40. Moisturizer helps, but not that much." },
-          { url: "wishful.thinking/fountain", title: "Top 10 Ways to Feel 40 Again", snippet: "Hydrate, stretch, dance badly, and challenge a teen named Brayden to a race." }
+          { url: "time.science/aging", title: "Can You Become Younger?", snippet: "No known method can reverse age to 40. Moisturizer helps, but not that much.", extra: "Grandma read 'no known method' as 'they haven't found it YET' and kept scrolling with hope in her heart." },
+          { url: "wishful.thinking/fountain", title: "Top 10 Ways to Feel 40 Again", snippet: "Hydrate, stretch, dance badly, and challenge a teen named Brayden to a race.", extra: "She did all 4. she still isn't 40, but Brayden is terrified and that made her feel 35." }
         ]
       }
     ];
@@ -410,6 +456,7 @@
       activeId: null,
       customCount: 0,
       chaos: 0,
+      dark: localStorage.getItem('grandma-dark') === '1',
     };
 
     const historyEl = document.getElementById('history');
@@ -418,6 +465,14 @@
     const statSeen = document.getElementById('stat-seen');
     const statChaos = document.getElementById('stat-chaos');
     const statCustom = document.getElementById('stat-custom');
+    const themeBtn = document.getElementById('btn-theme');
+
+    function applyTheme() {
+      document.documentElement.dataset.theme = state.dark ? 'dark' : 'light';
+      themeBtn.textContent = state.dark ? 'dark mode: on' : 'dark mode: off';
+      localStorage.setItem('grandma-dark', state.dark ? '1' : '0');
+    }
+    themeBtn.addEventListener('click', () => { state.dark = !state.dark; applyTheme(); });
 
     function esc(s) {
       return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -461,11 +516,13 @@
           <div class="page">
             <div class="search-head">GrandmaSearch results</div>
             <div class="search-q">${esc(item.q)}</div>
-            ${item.results.map(r => `
-              <div class="result-card">
+            ${item.results.map((r, i) => `
+              <div class="result-card" data-r="${i}" role="button" tabindex="0">
                 <div class="r-url">${esc(r.url)}</div>
                 <div class="r-title">${esc(r.title)}</div>
                 <div class="r-snippet">${esc(r.snippet)}</div>
+                <div class="r-hint">click to open result</div>
+                <div class="r-extra">${esc(r.extra || 'Grandma clicked this, squinted at it for 11 seconds, said "hmm", and learned absolutely nothing.')}</div>
               </div>
             `).join('')}
           </div>
@@ -478,6 +535,17 @@
         </div>
         <div class="verdict" id="verdict">${item.verdict ? `Filed as: ${esc(item.verdict)}.` : 'No verdict yet. The council awaits.'}</div>
       `;
+      resultEl.querySelectorAll('.result-card').forEach(card => {
+        const toggle = () => {
+          const wasOpen = card.classList.contains('open');
+          resultEl.querySelectorAll('.result-card').forEach(c => { c.classList.remove('open'); const h = c.querySelector('.r-hint'); if (h) h.textContent = 'click to open result'; });
+          card.classList.toggle('open', !wasOpen);
+          const hint = card.querySelector('.r-hint');
+          if (hint) hint.textContent = wasOpen ? 'click to open result' : 'click to close';
+        };
+        card.addEventListener('click', toggle);
+        card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+      });
       resultEl.querySelectorAll('[data-v]').forEach(b => {
         b.addEventListener('click', () => {
           item.verdict = b.getAttribute('data-v');
@@ -504,48 +572,49 @@
     function makeCustomResult(q) {
       const lower = q.toLowerCase();
       let chaos = 2;
-      let note = "Grandma typed this with full confidence and one finger.";
+      let note = "Grandma typed this with full confidence and one finger. the keyboard feared her.";
       let results = [];
 
       if (/mailman|crush|single|date|love|rizz/.test(lower)) {
         chaos = 4;
-        note = "Romance arc unlocked. Proceed with caution.";
+        note = "Romance arc unlocked. the mailman can feel it in his bones.";
         results = [
-          { url: "heartline.advice/romance", title: "How to Pursue Love Respectfully", snippet: "Be charming, be kind, and maybe don't search this on a shared family computer." },
-          { url: "local.vibes/community", title: "People Near You Are Just Trying To Work", snippet: "Top tip: a smile works better than 14 suspicious searches in a row." }
+          { url: "heartline.advice/romance", title: "How to Pursue Love Respectfully", snippet: "Be charming, be kind, and maybe don't search this on a shared family computer.", extra: "Grandma bookmarked this under a folder called 'BUSINESS STUFF' to throw off investigators." },
+          { url: "local.vibes/community", title: "People Near You Are Just Trying To Work", snippet: "Top tip: a smile works better than 14 suspicious searches in a row.", extra: "She smiled at the mailman through the window blinds. he sped up by 3 mph." }
         ];
       } else if (/roblox|fortnite|minecraft|game|xbox|playstation|gt5|turismo/.test(lower)) {
         chaos = 3;
-        note = "Grandma is entering gamer mode.";
+        note = "Grandma is entering gamer mode. god help the lobby.";
         results = [
-          { url: "gaming.guide/newbie", title: "Beginner Guide for Concerned Grandmas", snippet: "You can learn the game. You cannot legally fight the 12-year-old who won." },
-          { url: "forums.players/help", title: "Is This Game a Gang?", snippet: "Usually no. But the chat can be spiritually hostile." }
+          { url: "gaming.guide/newbie", title: "Beginner Guide for Concerned Grandmas", snippet: "You can learn the game. You cannot legally fight the 12-year-old who won.", extra: "Grandma wrote 'LEGAL??' in the margins. she's still exploring options." },
+          { url: "forums.players/help", title: "Is This Game a Gang?", snippet: "Usually no. But the chat can be spiritually hostile.", extra: "Top reply: 'ma'am my squad is not a gang we just wear matching skins'. grandma is not convinced." }
         ];
       } else if (/facebook|tiktok|instagram|hashtag|internet|wifi|computer|phone/.test(lower)) {
         chaos = 2;
-        note = "Classic tech support quest.";
+        note = "Classic tech support quest. the IT department is her grandson.";
         results = [
-          { url: "easytech.help/basics", title: "Simple Tech Help for Everyday Questions", snippet: "Try turning it off and on. If that fails, glare at it with grandmother authority." },
-          { url: "ask-a-grandkid.net", title: "Should I Call My Grandkid?", snippet: "Yes. But also try pressing the obvious button first." }
+          { url: "easytech.help/basics", title: "Simple Tech Help for Everyday Questions", snippet: "Try turning it off and on. If that fails, glare at it with grandmother authority.", extra: "The glare worked once in 2009 and she has been chasing that high ever since." },
+          { url: "ask-a-grandkid.net", title: "Should I Call My Grandkid?", snippet: "Yes. But also try pressing the obvious button first.", extra: "She called him anyway. he answered 'did you try turning it off and on' before she said hello. psychic damage." }
         ];
       } else if (/fight|address|dox|kill|attack|illegal|police/.test(lower)) {
         chaos = 6;
-        note = "Grandma has crossed into the danger zone. Redirecting to tea and cookies.";
+        note = "Grandma has crossed into the danger zone. the FBI agent in her webcam just sat up straight.";
         results = [
-          { url: "calmdown.now/breathe", title: "Let's Take a Breath", snippet: "Whatever Brayden did, this is not the move. Drink water. Touch grass. Close tab." },
-          { url: "goodchoices.guide/conflict", title: "Handling Conflict Without Becoming a Menace", snippet: "Legal, peaceful options only. Grandma is powerful, but she must use her power wisely." }
+          { url: "calmdown.now/breathe", title: "Let's Take a Breath", snippet: "Whatever Brayden did, this is not the move. Drink water. Touch grass. Close tab.", extra: "Grandma took a deep breath, drank water, touched grass... and then went right back to searching. unstoppable." },
+          { url: "goodchoices.guide/conflict", title: "Handling Conflict Without Becoming a Menace", snippet: "Legal, peaceful options only. Grandma is powerful, but she must use her power wisely.", extra: "The article said 'use your power wisely'. grandma interpreted this as 'be smarter about it'." }
         ];
       } else if (/how to/.test(lower)) {
         chaos = 2;
-        note = "A classic grandma 'how to' query. The internet is bracing itself.";
+        note = "A classic grandma 'how to' query. the internet buckled its seatbelt.";
         results = [
-          { url: "howto.everything/answers", title: `How To: ${q.replace(/(^\w|\s\w)/g, m => m.toUpperCase())}`, snippet: "Step 1: Ask the internet. Step 2: Get 40% useful advice and 60% chaos. Step 3: Call grandson anyway." },
-          { url: "forums.realpeople/help", title: "I Tried This and It Kind Of Worked", snippet: "Top comment: 'my grandma did this too and honestly she nailed it.'" }
+          { url: "howto.everything/answers", title: `How To: ${q.replace(/(^\w|\s\w)/g, m => m.toUpperCase())}`, snippet: "Step 1: Ask the internet. Step 2: Get 40% useful advice and 60% chaos. Step 3: Call grandson anyway.", extra: "Grandma followed step 1, ignored step 2, and skipped straight to step 3. grandson did not pick up." },
+          { url: "forums.realpeople/help", title: "I Tried This and It Kind Of Worked", snippet: "Top comment: 'my grandma did this too and honestly she nailed it.'", extra: "Second comment: 'my grandma also tried this and we no longer have a microwave.' mixed reviews." }
         ];
       } else {
+        note = "The internet stared at this search for a full minute before responding.";
         results = [
-          { url: "grandmasearch.com/results", title: `Results for "${q}"`, snippet: "The internet wasn't ready for this one, but it tried its best." },
-          { url: "community.answers/thread/2048", title: "People Also Asked Something Similar", snippet: "Nobody asked it exactly like grandma did. That's her special gift." }
+          { url: "grandmasearch.com/results", title: `Results for "${q}"`, snippet: "The internet wasn't ready for this one, but it tried its best.", extra: "One of the search results was just a picture of a confused cat. honestly accurate." },
+          { url: "community.answers/thread/2048", title: "People Also Asked Something Similar", snippet: "Nobody asked it exactly like grandma did. That's her special gift.", extra: "A user replied 'i have the same question' and then deleted their account. grandma stands alone." }
         ];
       }
 
@@ -583,6 +652,7 @@
       openItem(pick.id);
     });
 
+    applyTheme();
     renderHistory();
     updateStats();
   </script>
